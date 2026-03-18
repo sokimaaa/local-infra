@@ -105,7 +105,7 @@ Description: Single-node PostgreSQL database.
 
 Service name and aliases: `kafka`, `kafka-ui`, `kafkaui`
 
-Description: Single-node Kafka, includes UI.
+Description: Single-node Kafka, KRaft mode, includes UI.
 
 | Configurable env        | What it does                      | Default                  |
 |-------------------------|-----------------------------------|--------------------------|
