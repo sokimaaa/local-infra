@@ -1,0 +1,5 @@
+name: ${COMPOSE_PROJECT_NAME}
+
+networks:
+  local-infra:
+    driver: bridge
