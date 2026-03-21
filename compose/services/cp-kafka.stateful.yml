@@ -1,0 +1,66 @@
+services:
+  cp-kafka:
+    image: confluentinc/cp-kafka:${CP_KAFKA_PLATFORM_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-cp-kafka
+    hostname: cp-kafka
+    ports:
+      - "${CP_KAFKA_PORT}:9092"
+      - "${CP_KAFKA_CONTROLLER_PORT}:9093"
+    environment:
+      CLUSTER_ID: ${CP_KAFKA_CLUSTER_ID}
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://cp-kafka:9092,CONTROLLER://cp-kafka:9093,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka:9092,PLAINTEXT_HOST://localhost:${CP_KAFKA_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@cp-kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "cub kafka-ready 1 20 -b cp-kafka:9092 >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - ./volumes/cp-kafka:/var/lib/kafka/data
+    networks:
+      - local-infra
+
+  cp-schema-registry:
+    image: confluentinc/cp-schema-registry:${CP_KAFKA_PLATFORM_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-cp-schema-registry
+    hostname: cp-schema-registry
+    depends_on:
+      cp-kafka:
+        condition: service_healthy
+    ports:
+      - "${CP_SCHEMA_REGISTRY_PORT}:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: cp-schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://cp-kafka:9092
+      SCHEMA_REGISTRY_SCHEMA_COMPATIBILITY_LEVEL: ${CP_SCHEMA_REGISTRY_COMPATIBILITY_LEVEL}
+    networks:
+      - local-infra
+
+  cp-kafka-ui:
+    image: provectuslabs/kafka-ui:${CP_KAFKA_UI_IMAGE_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-cp-kafka-ui
+    depends_on:
+      cp-kafka:
+        condition: service_healthy
+      cp-schema-registry:
+        condition: service_started
+    ports:
+      - "${CP_KAFKA_UI_PORT}:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: ${CP_KAFKA_UI_CLUSTER_NAME}
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: cp-kafka:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://cp-schema-registry:8081
+    networks:
+      - local-infra

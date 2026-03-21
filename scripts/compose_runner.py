@@ -54,7 +54,15 @@ def print_run_summary(
     warnings: list[str],
     command: list[str],
 ) -> None:
-    source_files = [str(SERVICE_ENV_FILES[service].relative_to(ROOT)) for service in services]
+    source_files: list[str] = []
+    seen_sources: set[str] = set()
+
+    for service in services:
+        env_source = str(SERVICE_ENV_FILES[service].relative_to(ROOT))
+        if env_source not in seen_sources:
+            seen_sources.add(env_source)
+            source_files.append(env_source)
+
     if root_env_exists:
         source_files.append(".env")
     if override_env_file:

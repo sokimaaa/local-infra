@@ -32,7 +32,15 @@ def build_runtime_env_file(
     root_env_file: Path | None,
     override_env_file: Path | None,
 ) -> tuple[Path, dict[str, str]]:
-    layered_env_files = [SERVICE_ENV_FILES[service] for service in services]
+    layered_env_files: list[Path] = []
+    seen_env_files: set[Path] = set()
+
+    for service in services:
+        env_file = SERVICE_ENV_FILES[service]
+        if env_file not in seen_env_files:
+            seen_env_files.add(env_file)
+            layered_env_files.append(env_file)
+
     if root_env_file and root_env_file.exists():
         layered_env_files.append(root_env_file)
     if override_env_file:

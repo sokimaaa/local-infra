@@ -33,6 +33,18 @@ For example, to start postgres and kafka:
 python3 local_infra.py up postgres kafka
 ```
 
+Start the Confluent Platform Kafka stack:
+
+```bash
+python3 local_infra.py up cp-kafka
+```
+
+Start the same stack with Kafka REST Proxy enabled:
+
+```bash
+python3 local_infra.py up cp-kafka-rest
+```
+
 Start the same stack with persistent volumes:
 
 ```bash
@@ -82,6 +94,8 @@ Examples:
 python3 local_infra.py list
 python3 local_infra.py up kafka postgres
 python3 local_infra.py --stateful up kafka postgres
+python3 local_infra.py up cp-kafka
+python3 local_infra.py up cp-kafka-rest
 python3 local_infra.py config kafka
 ```
 
@@ -93,13 +107,13 @@ Service name and aliases: `postgres`, `pg`
 
 Description: Single-node PostgreSQL database.
 
-| Configurable env       | What it does                      | Default                |
-|------------------------|-----------------------------------|------------------------|
-| `POSTGRES_IMAGE_TAG`   | Chooses Postgres image tag.       | `16-alpine`            |
-| `POSTGRES_PORT`        | Exposes Postgres on host port.    | `5432`                 |
-| `POSTGRES_DB`          | Creates default database name.    | `local`                |
-| `POSTGRES_USER`        | Creates default database user.    | `postgres`             |
-| `POSTGRES_PASSWORD`    | Sets default user password.       | `postgres`             |
+| Configurable env     | What it does                   | Default     |
+|----------------------|--------------------------------|-------------|
+| `POSTGRES_IMAGE_TAG` | Chooses Postgres image tag.    | `16-alpine` |
+| `POSTGRES_PORT`      | Exposes Postgres on host port. | `5432`      |
+| `POSTGRES_DB`        | Creates default database name. | `local`     |
+| `POSTGRES_USER`      | Creates default database user. | `postgres`  |
+| `POSTGRES_PASSWORD`  | Sets default user password.    | `postgres`  |
 
 ### Kafka
 
@@ -111,9 +125,45 @@ Description: Single-node Kafka, KRaft mode, includes UI.
 |-------------------------|-----------------------------------|--------------------------|
 | `KAFKA_IMAGE_TAG`       | Chooses Kafka image tag.          | `latest`                 |
 | `KAFKA_PORT`            | Exposes Kafka broker on host.     | `9092`                   |
+| `KAFKA_CONTROLLER_PORT` | Exposes Kafka controller on host. | `0`                      |
+| `KAFKA_CLUSTER_ID`      | Sets the single-node KRaft ID.    | `MkU3OEVBNTcwNTJENDM2Qk` |
+| `KAFKA_UI_IMAGE_TAG`    | Chooses Kafka UI image tag.       | `v0.7.2`                 |
 | `KAFKA_UI_PORT`         | Exposes Kafka UI on host.         | `8080`                   |
+| `KAFKA_UI_CLUSTER_NAME` | Labels the cluster inside the UI. | `local`                  |
+
+### CP Kafka
+
+Service name and aliases: `cp-kafka`, `cpkafka`, `cp-kafka-ui`
+
+Description: Single-node Confluent Platform Kafka, KRaft mode, includes Schema Registry and UI.
+
+| Configurable env           | What it does                              | Default                  |
+|----------------------------|-------------------------------------------|--------------------------|
+| `CP_KAFKA_PLATFORM_TAG`    | Chooses the Confluent Platform image tag. | `7.6.1`                  |
+| `CP_KAFKA_UI_IMAGE_TAG`    | Chooses Kafka UI image tag.               | `v0.7.2`                 |
+| `CP_KAFKA_PORT`            | Exposes Kafka broker on host.             | `29092`                  |
+| `CP_KAFKA_CONTROLLER_PORT` | Exposes Kafka controller on host.         | `0`                      |
+| `CP_SCHEMA_REGISTRY_PORT`  | Exposes Schema Registry on host.          | `8081`                   |
+| `CP_SCHEMA_REGISTRY_COMPATIBILITY_LEVEL` | Sets global Schema Registry compatibility. | `BACKWARD` |
+| `CP_KAFKA_UI_PORT`         | Exposes Kafka UI on host.                 | `8088`                   |
+| `CP_KAFKA_CLUSTER_ID`      | Sets the single-node KRaft ID.            | `MkU3OEVBNTcwNTJENDM2Qk` |
+| `CP_KAFKA_UI_CLUSTER_NAME` | Labels the cluster inside the UI.         | `cp-local`               |
+
+### CP Kafka REST 
+
+Service name and aliases: `cp-kafka-rest`, `cpkafkarest`, `cpkafkarest`, `kafkarest`, `kafka-rest`
+
+Description: Extension for `cp-kafka` that adds Kafka REST Proxy. Running `cp-kafka-rest` from the CLI automatically
+includes the base `cp-kafka` stack.
+
+| Configurable env        | What it does                              | Default |
+|-------------------------|-------------------------------------------|---------|
+| `CP_KAFKA_PLATFORM_TAG` | Chooses the Confluent Platform image tag. | `7.6.1` |
+| `CP_KAFKA_REST_PORT`    | Exposes Kafka REST Proxy on host.         | `8082`  |
 
 ### Complete env files
 
 - [postgres.env](/Users/romandenysov/IdeaProjects/local-infra/env/postgres.env)
 - [kafka.env](/Users/romandenysov/IdeaProjects/local-infra/env/kafka.env)
+- [cp-kafka.env](/Users/romandenysov/IdeaProjects/local-infra/env/cp-kafka.env)
+- [cp-kafka-rest.env](/Users/romandenysov/IdeaProjects/local-infra/env/cp-kafka-rest.env)
