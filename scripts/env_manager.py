@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from scripts.constants import ROOT, SERVICE_ENV_FILES
+from scripts.env_validator import validate_env_values
 
 
 def parse_env_file(env_path: Path) -> dict[str, str]:
@@ -51,6 +52,8 @@ def build_runtime_env_file(
         if not env_file.exists():
             raise SystemExit(f"Env file does not exist: {env_file}")
         values.update(parse_env_file(env_file))
+
+    validate_env_values(values)
 
     generated_dir = ROOT / ".generated"
     generated_dir.mkdir(exist_ok=True)
