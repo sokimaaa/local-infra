@@ -6,6 +6,7 @@ COMPOSE_DIR = ROOT / "compose"
 BASE_COMPOSE = COMPOSE_DIR / "base.yml"
 
 SERVICE_ALIASES = {
+    "af": "airflow",
     "cpkafka": "cp-kafka",
     "cp-kafka-ui": "cp-kafka",
     "cpkafkarest": "cp-kafka-rest",
@@ -21,6 +22,10 @@ SERVICE_DEPENDENCIES = {
 }
 
 SERVICE_FILES = {
+    "airflow": {
+        "stateless": COMPOSE_DIR / "services" / "airflow.yml",
+        "stateful": COMPOSE_DIR / "services" / "airflow.stateful.yml",
+    },
     "cp-kafka": {
         "stateless": COMPOSE_DIR / "services" / "cp-kafka.yml",
         "stateful": COMPOSE_DIR / "services" / "cp-kafka.stateful.yml",
@@ -40,6 +45,7 @@ SERVICE_FILES = {
 }
 
 SERVICE_ENV_FILES = {
+    "airflow": ROOT / "env" / "airflow.env",
     "cp-kafka": ROOT / "env" / "cp-kafka.env",
     "cp-kafka-rest": ROOT / "env" / "cp-kafka-rest.env",
     "postgres": ROOT / "env" / "postgres.env",

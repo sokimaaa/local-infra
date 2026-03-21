@@ -45,6 +45,18 @@ Start the same stack with Kafka REST Proxy enabled:
 python3 local_infra.py up cp-kafka-rest
 ```
 
+Start a slim Airflow stack for local DAG testing:
+
+```bash
+python3 local_infra.py up airflow
+```
+
+Start the same Airflow stack in stateful mode:
+
+```bash
+python3 local_infra.py --stateful up airflow
+```
+
 Start the same stack with persistent volumes:
 
 ```bash
@@ -95,7 +107,6 @@ python3 local_infra.py list
 python3 local_infra.py up kafka postgres
 python3 local_infra.py --stateful up kafka postgres
 python3 local_infra.py up cp-kafka
-python3 local_infra.py up cp-kafka-rest
 python3 local_infra.py config kafka
 ```
 
@@ -137,19 +148,19 @@ Service name and aliases: `cp-kafka`, `cpkafka`, `cp-kafka-ui`
 
 Description: Single-node Confluent Platform Kafka, KRaft mode, includes Schema Registry and UI.
 
-| Configurable env           | What it does                              | Default                  |
-|----------------------------|-------------------------------------------|--------------------------|
-| `CP_KAFKA_PLATFORM_TAG`    | Chooses the Confluent Platform image tag. | `7.6.1`                  |
-| `CP_KAFKA_UI_IMAGE_TAG`    | Chooses Kafka UI image tag.               | `v0.7.2`                 |
-| `CP_KAFKA_PORT`            | Exposes Kafka broker on host.             | `29092`                  |
-| `CP_KAFKA_CONTROLLER_PORT` | Exposes Kafka controller on host.         | `0`                      |
-| `CP_SCHEMA_REGISTRY_PORT`  | Exposes Schema Registry on host.          | `8081`                   |
-| `CP_SCHEMA_REGISTRY_COMPATIBILITY_LEVEL` | Sets global Schema Registry compatibility. | `BACKWARD` |
-| `CP_KAFKA_UI_PORT`         | Exposes Kafka UI on host.                 | `8088`                   |
-| `CP_KAFKA_CLUSTER_ID`      | Sets the single-node KRaft ID.            | `MkU3OEVBNTcwNTJENDM2Qk` |
-| `CP_KAFKA_UI_CLUSTER_NAME` | Labels the cluster inside the UI.         | `cp-local`               |
+| Configurable env                         | What it does                               | Default                  |
+|------------------------------------------|--------------------------------------------|--------------------------|
+| `CP_KAFKA_PLATFORM_TAG`                  | Chooses the Confluent Platform image tag.  | `7.6.1`                  |
+| `CP_KAFKA_UI_IMAGE_TAG`                  | Chooses Kafka UI image tag.                | `v0.7.2`                 |
+| `CP_KAFKA_PORT`                          | Exposes Kafka broker on host.              | `29092`                  |
+| `CP_KAFKA_CONTROLLER_PORT`               | Exposes Kafka controller on host.          | `0`                      |
+| `CP_SCHEMA_REGISTRY_PORT`                | Exposes Schema Registry on host.           | `8081`                   |
+| `CP_SCHEMA_REGISTRY_COMPATIBILITY_LEVEL` | Sets global Schema Registry compatibility. | `BACKWARD`               |
+| `CP_KAFKA_UI_PORT`                       | Exposes Kafka UI on host.                  | `8088`                   |
+| `CP_KAFKA_CLUSTER_ID`                    | Sets the single-node KRaft ID.             | `MkU3OEVBNTcwNTJENDM2Qk` |
+| `CP_KAFKA_UI_CLUSTER_NAME`               | Labels the cluster inside the UI.          | `cp-local`               |
 
-### CP Kafka REST 
+### CP Kafka REST
 
 Service name and aliases: `cp-kafka-rest`, `cpkafkarest`, `cpkafkarest`, `kafkarest`, `kafka-rest`
 
@@ -161,9 +172,31 @@ includes the base `cp-kafka` stack.
 | `CP_KAFKA_PLATFORM_TAG` | Chooses the Confluent Platform image tag. | `7.6.1` |
 | `CP_KAFKA_REST_PORT`    | Exposes Kafka REST Proxy on host.         | `8082`  |
 
+### Airflow
+
+Service name and aliases: `airflow`, `af`
+
+Description: Slim Airflow stack for local DAG development. Includes dedicated Postgres metadata DB, `airflow-init`,
+webserver, and scheduler.
+
+| Configurable env                             | What it does                                 | Default         |
+|----------------------------------------------|----------------------------------------------|-----------------|
+| `AIRFLOW_IMAGE_TAG`                          | Chooses Airflow image tag.                   | `2.10.5`        |
+| `AIRFLOW_PORT`                               | Exposes Airflow UI on host.                  | `8085`          |
+| `AIRFLOW_EXECUTOR`                           | Selects the Airflow executor.                | `LocalExecutor` |
+| `AIRFLOW_UID`                                | Sets the runtime UID for mounted files.      | `50000`         |
+| `AIRFLOW_ADMIN_USERNAME`                     | The default admin username.                  | `admin`         |
+| `AIRFLOW_ADMIN_PASSWORD`                     | The default admin password.                  | `admin`         |
+| `AIRFLOW_POSTGRES_DB`                        | Creates the Airflow metadata database.       | `airflow`       |
+| `AIRFLOW_POSTGRES_USER`                      | Creates the Airflow metadata database user.  | `airflow`       |
+| `AIRFLOW_POSTGRES_PASSWORD`                  | Sets the Airflow metadata database password. | `airflow`       |
+| `AIRFLOW__CORE__LOAD_EXAMPLES`               | Enables or disables Airflow example DAGs.    | `false`         |
+| `AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION` | Controls pause state for new DAGs.           | `true`          |
+
 ### Complete env files
 
-- [postgres.env](/Users/romandenysov/IdeaProjects/local-infra/env/postgres.env)
-- [kafka.env](/Users/romandenysov/IdeaProjects/local-infra/env/kafka.env)
-- [cp-kafka.env](/Users/romandenysov/IdeaProjects/local-infra/env/cp-kafka.env)
-- [cp-kafka-rest.env](/Users/romandenysov/IdeaProjects/local-infra/env/cp-kafka-rest.env)
+- [airflow.env](./env/airflow.env)
+- [postgres.env](./env/postgres.env)
+- [kafka.env](./env/kafka.env)
+- [cp-kafka.env](./env/cp-kafka.env)
+- [cp-kafka-rest.env](./env/cp-kafka-rest.env)

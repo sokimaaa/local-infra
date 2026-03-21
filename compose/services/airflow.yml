@@ -1,0 +1,84 @@
+services:
+  airflow-postgres:
+    image: postgres:16-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-airflow-postgres
+    environment:
+      POSTGRES_DB: ${AIRFLOW_POSTGRES_DB}
+      POSTGRES_USER: ${AIRFLOW_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AIRFLOW_POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AIRFLOW_POSTGRES_USER} -d ${AIRFLOW_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - local-infra
+
+  airflow-init:
+    image: apache/airflow:${AIRFLOW_IMAGE_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-airflow-init
+    user: "0:0"
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /opt/airflow/dags /opt/airflow/plugins /opt/airflow/config
+        chown -R ${AIRFLOW_UID}:0 /opt/airflow
+        su airflow -c "airflow db migrate"
+        su airflow -c "airflow users create \
+          --role Admin \
+          --username ${AIRFLOW_ADMIN_USERNAME} \
+          --password ${AIRFLOW_ADMIN_PASSWORD} \
+          --firstname ${AIRFLOW_ADMIN_FIRSTNAME} \
+          --lastname ${AIRFLOW_ADMIN_LASTNAME} \
+          --email ${AIRFLOW_ADMIN_EMAIL}" || true
+    environment: &airflow-env
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_POSTGRES_USER}:${AIRFLOW_POSTGRES_PASSWORD}@airflow-postgres/${AIRFLOW_POSTGRES_DB}
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY}
+      AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW__CORE__LOAD_EXAMPLES}
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: ${AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION}
+      AIRFLOW__CORE__TEST_CONNECTION: ${AIRFLOW__CORE__TEST_CONNECTION}
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
+    volumes: &airflow-volumes
+      - ./volumes/airflow/dags:/opt/airflow/dags
+      - ./volumes/airflow/plugins:/opt/airflow/plugins
+      - ./volumes/airflow/config:/opt/airflow/config
+    networks:
+      - local-infra
+
+  airflow-webserver:
+    image: apache/airflow:${AIRFLOW_IMAGE_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-airflow-webserver
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    user: "${AIRFLOW_UID}:0"
+    command: webserver
+    ports:
+      - "${AIRFLOW_PORT}:8080"
+    environment: *airflow-env
+    volumes: *airflow-volumes
+    networks:
+      - local-infra
+
+  airflow-scheduler:
+    image: apache/airflow:${AIRFLOW_IMAGE_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-airflow-scheduler
+    depends_on:
+      airflow-postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    user: "${AIRFLOW_UID}:0"
+    command: scheduler
+    environment: *airflow-env
+    volumes: *airflow-volumes
+    networks:
+      - local-infra
