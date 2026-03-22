@@ -193,6 +193,21 @@ webserver, and scheduler.
 | `AIRFLOW__CORE__LOAD_EXAMPLES`               | Enables or disables Airflow example DAGs.    | `false`         |
 | `AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION` | Controls pause state for new DAGs.           | `true`          |
 
+### S3
+
+Service name and aliases: `s3`
+
+Description: Local S3-compatible object storage powered by LocalStack.
+
+| Configurable env       | What it does                                  | Default     |
+|------------------------|-----------------------------------------------|-------------|
+| `S3_IMAGE_TAG`         | Chooses LocalStack image tag.                 | `latest`    |
+| `S3_PORT`              | Exposes the LocalStack edge API on host.      | `4566`      |
+| `S3_REGION`            | Sets the default AWS region for S3 emulation. | `us-east-1` |
+| `S3_ACCESS_KEY_ID`     | Sets the access key for local AWS clients.    | `test`      |
+| `S3_SECRET_ACCESS_KEY` | Sets the secret key for local AWS clients.    | `test`      |
+| `S3_DEFAULT_BUCKETS`   | Creates default bucket names at startup.      | `local`     |
+
 ### Complete env files
 
 - [airflow.env](./env/airflow.env)
@@ -200,3 +215,4 @@ webserver, and scheduler.
 - [kafka.env](./env/kafka.env)
 - [cp-kafka.env](./env/cp-kafka.env)
 - [cp-kafka-rest.env](./env/cp-kafka-rest.env)
+- [s3.env](./env/s3.env)

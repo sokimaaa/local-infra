@@ -42,6 +42,10 @@ SERVICE_FILES = {
         "stateless": COMPOSE_DIR / "services" / "kafka.yml",
         "stateful": COMPOSE_DIR / "services" / "kafka.stateful.yml",
     },
+    "s3": {
+        "stateless": COMPOSE_DIR / "services" / "s3.yml",
+        "stateful": COMPOSE_DIR / "services" / "s3.stateful.yml",
+    },
 }
 
 SERVICE_ENV_FILES = {
@@ -50,4 +54,5 @@ SERVICE_ENV_FILES = {
     "cp-kafka-rest": ROOT / "env" / "cp-kafka-rest.env",
     "postgres": ROOT / "env" / "postgres.env",
     "kafka": ROOT / "env" / "kafka.env",
+    "s3": ROOT / "env" / "s3.env",
 }
