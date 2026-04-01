@@ -4,7 +4,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}-cp-kafka
     hostname: cp-kafka
     ports:
-      - "${CP_KAFKA_PORT}:9092"
+      - "${CP_KAFKA_PORT}:29092"
       - "${CP_KAFKA_CONTROLLER_PORT}:9093"
     environment:
       CLUSTER_ID: ${CP_KAFKA_CLUSTER_ID}
