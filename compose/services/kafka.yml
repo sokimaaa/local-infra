@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: bitnami/kafka:${KAFKA_IMAGE_TAG}
+    image: bitnamilegacy/kafka:${KAFKA_IMAGE_TAG}
     container_name: ${COMPOSE_PROJECT_NAME}-kafka
     ports:
       - "${KAFKA_PORT}:9094"
